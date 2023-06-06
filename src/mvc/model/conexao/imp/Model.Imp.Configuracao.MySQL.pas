@@ -1,7 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      ES Sistemas                      }
-{            Início do projeto 27/05/2023               }
+{            InÃ­cio do projeto 27/05/2023               }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2023                      }
@@ -63,11 +63,11 @@ begin
 
   FArquivoIni := TIniFile.Create(FDiretorioexe + 'ConfiguracaoMySQL.ini');
   try
-    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ServerHost'     , 'mysql670.umbler.com');
-    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Port'           , '41890');
-    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Database'       , 'essistemas');
-    FArquivoIni.WriteString('ConfiguracaoMySQL', 'UserName'       , 'esilva');
-    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Password'       , 'EleandroSilva');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ServerHost'     , '123');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Port'           , '123');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Database'       , '123');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'UserName'       , '123');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Password'       , '123');
     FArquivoIni.WriteString('ConfiguracaoMySQL', 'DriverName'     , 'MySQL');
     FArquivoIni.WriteString('ConfiguracaoMySQL', 'LibraryName'    , 'dbxmys.dll');
     FArquivoIni.WriteString('ConfiguracaoMySQL', 'VendorLib'      , FDiretorioexe+'libmysql.dll');
