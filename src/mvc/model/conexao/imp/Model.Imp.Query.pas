@@ -1,7 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      ES Sistemas                      }
-{            Início do projeto 27/05/2023               }
+{            InÃ­cio do projeto 27/05/2023               }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2023                      }
@@ -53,9 +53,9 @@ type
 
       function DataSet(DataSource : TDataSource)        : iQuery;   overload;
       function DataSet                                  : TDataSet; overload;
-      function Params(Params : String; Value : Variant) : iQuery;  overload;
-      function Params(Params : String)                  : Variant; overload;
-      function SQL(aValue : String)                     : iQuery; overload;
+      function Params(Params : String; Value : Variant) : iQuery;   overload;
+      function Params(Params : String)                  : Variant;  overload;
+      function SQL(aValue : String)                     : iQuery;   overload;
       function ExecSQL                                  : iQuery;
       function Clear                                    : iQuery;
       function Close                                    : iQuery;
