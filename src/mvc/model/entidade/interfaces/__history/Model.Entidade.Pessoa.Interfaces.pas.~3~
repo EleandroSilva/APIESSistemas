@@ -1,0 +1,33 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Pessoa.Interfaces;
+
+interface
+
+type
+  iPessoa = interface
+    ['{F458FA3F-20AC-40A1-9689-EB97CA88357E}']
+    function Id(Value : Integer)             : iPessoa; overload;
+    function Id                              : Integer; overload;
+    function NomeEmpresarial(Value : String) : iPessoa; overload;
+    function NomeEmpresarial                 : String;  overload;
+    function NomeFantasia(Value : String)    : iPessoa; overload;
+    function NomeFantasia                    : String;  overload;
+    function Nome(Value : String)            : iPessoa; overload;
+    function Nome                            : String;  overload;
+    function SobreNome(Value : String)       : iPessoa; overload;
+    function SobreNome                       : String;  overload;
+
+
+  end;
+
+implementation
+
+end.

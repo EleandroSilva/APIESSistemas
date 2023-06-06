@@ -1,0 +1,92 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Pessoa.Fisica;
+
+interface
+
+uses
+  Model.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Entidade.Endereco.Interfaces;
+
+
+
+type
+  TEntidadePessoaFisica<T : iInterface>= class(TInterfacedObject, iEntidadePessoaFisica<T>)
+    private
+      [Weak]
+      FParente  : T;
+      FId       : Integer;
+      FIdPessoa : Integer;
+      FCPF      : String;
+      FRG       : String;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadePessoaFisica<T>;
+
+      function CPF(Value : String) : iEntidadePessoaFisica<T>; overload;
+      function CPF                 : String;        overload;
+      function RG(Value : String)  : iEntidadePessoaFisica<T>; overload;
+      function RG                  : String;        overload;
+
+
+  end;
+
+implementation
+
+uses
+  Model.Imp.Entidade.Endereco;
+
+{ TPessoaFisica }
+
+constructor TEntidadePessoaFisica.Create;
+begin
+  FEndereco := TEntidadeEndereco<iPessoaFisica>.New(Self);
+end;
+
+destructor TEntidadePessoaFisica.Destroy;
+begin
+  inherited;
+end;
+
+class function TEntidadePessoaFisica.New: iPessoaFisica;
+begin
+  Result := Self.Create;
+end;
+
+function TEntidadePessoaFisica.CPF(Value: String): iPessoaFisica;
+begin
+  Result := Self;
+  FCPF := Value;
+end;
+
+function TEntidadePessoaFisica.CPF: String;
+begin
+  Result := FCPF;
+end;
+
+function TEntidadePessoaFisica.RG(Value: String): iPessoaFisica;
+begin
+  Result := Self;
+  FRG := Value;
+end;
+
+function TEntidadePessoaFisica.RG: String;
+begin
+  Result := FRG;
+end;
+
+function TEntidadePessoaFisica.Endereco: iEntidadeEndereco<iPessoaFisica>;
+begin
+  Result := FEndereco;
+end;
+
+
+end.

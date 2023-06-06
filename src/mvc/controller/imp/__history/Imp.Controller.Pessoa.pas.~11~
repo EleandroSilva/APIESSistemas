@@ -1,0 +1,124 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Imp.Controller.Pessoa;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller;
+
+
+type
+  TVarPessoa = class
+    private
+      FTexto      : String;
+      FID         : Integer;
+      FNome       : String;
+      FSobreNome  : String;
+      FTipoPessoa : String;
+      FAtivo      : Integer;
+      FJSONArray  : TJSONArray;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+      FController : iController;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+type
+  TControllerPessoa = class
+  private
+    //class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    //class procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Post(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    //class procedure Put(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    //class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+  public
+    class function IdPessoa : Integer;
+    class procedure Registry;
+  end;
+
+implementation
+{ TVarPessoa }
+
+constructor TVarPessoa.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+end;
+
+destructor TVarPessoa.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+{ TControllerUsuario }
+
+class procedure TControllerPessoa.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+var
+  LVar : TVarPessoa;
+begin
+  LVar := TVarPessoa.Create;
+  try
+    try
+      LVar.FBody       := Req.Body<TJSONObject>;
+      LVar.FNome       := LVar.FBody.GetValue<String>('nome');
+      LVar.FSobreNome  := LVar.FBody.GetValue<String>('sobrenome');
+      LVar.FTipoPessoa := LVar.FBody.GetValue<String>('tipo');
+      LVar.FAtivo      := LVar.FBody.GetValue<integer>('ativo');
+
+      LVar.FController
+          .Entidade
+            .Pessoa
+            .This
+              .Nome(LVar.FNome)
+              .SobreNome(LVar.FSobreNome)
+              .Tipo(LVar.FTipoPessoa)
+              .Ativo(LVar.FAtivo)
+             .&End
+            .Post
+            .DataSet(LVar.FDataSource);
+
+
+  except
+    raise Exception.Create('Error ao tentar incuir registro');
+  end;
+  finally
+    FreeAndNil(LVar);
+  end;
+end;
+
+class procedure TControllerPessoa.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('ess')
+      //.Get('/usuarios'       , GetAll)
+      //.Get('/usuarios/:id'   , GetbyId)
+      .Post('pessoas'       , Post);
+      //.Put('usuarios/:id'    , Put)
+      //.Delete('usuarios/:id' , Delete);
+end;
+
+end.

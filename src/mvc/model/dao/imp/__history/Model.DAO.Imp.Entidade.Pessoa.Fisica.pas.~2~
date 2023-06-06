@@ -1,0 +1,33 @@
+unit Model.DAO.Imp.Entidade.Pessoa.Fisica;
+
+interface
+
+uses
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query;
+
+type
+  TDAOPessoaFisica = class (TInterfacedObject, iDAOPessoaFisica)
+    private
+      FPessoaFisica : iEntidadePessoaFisica<iDAOPessoaFisica>;
+      FConexao      : iConexao;
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+      FUteis        : TUteis;
+      FMSG          : TMensagens;
+
+      const
+        FSQL ='select * from pessoafisica';
+    public
+  end;
+
+implementation
+
+end.

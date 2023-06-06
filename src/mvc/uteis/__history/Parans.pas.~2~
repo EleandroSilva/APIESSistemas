@@ -1,0 +1,10 @@
+unit Parans;
+
+interface
+
+implementation
+
+var
+  GId : integer;
+
+end.

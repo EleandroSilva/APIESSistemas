@@ -1,0 +1,236 @@
+unit Model.DAO.Imp.Entidade.Pessoa;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis.Tratar.Mensagens,
+  Uteis,
+
+  Model.DAO.Entidade.Interfaces,
+  Model.Entidade.Pessoa.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Entidade.Pessoa,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query;
+
+type
+  TDAOPessoa = class(TInterfacedObject, iDAOEntidade<iEntidadePessoa>)
+  private
+    FPessoa  : iEntidadePessoa;
+    FConexao : iConexao;
+    FDataSet : TDataSet;
+    FQuery   : iQuery;
+    FMSG     : TMensagens;
+   const
+      FSQL=('select * from pessoa');
+  public
+    constructor Create;
+    destructor Destroy; override;
+    class function New : iDAOEntidade<iEntidadePessoa>;
+
+    function DataSet(DataSource : TDataSource) : iDAOEntidade<iEntidadePessoa>; overload;
+    function DataSet                           : TDataSet;                       overload;
+    function GetAll                            : iDAOEntidade<iEntidadePessoa>;
+    function GetbyId(Id : Variant)             : iDAOEntidade<iEntidadePessoa>;
+    function GetbyParams                       : iDAOEntidade<iEntidadePessoa>;
+    function Post                              : iDAOEntidade<iEntidadePessoa>;
+    function Put                               : iDAOEntidade<iEntidadePessoa>;
+    function Delete                            : iDAOEntidade<iEntidadePessoa>;
+
+    function This : iEntidadePessoa;
+  end;
+
+implementation
+
+{ TDAOPessoa }
+
+constructor TDAOPessoa.Create;
+begin
+  FPessoa  := TEntidadePessoa.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+end;
+
+class function TDAOPessoa.New: iDAOEntidade<iEntidadePessoa>;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOPessoa.This: iEntidadePessoa;
+begin
+  Result := FPessoa;
+end;
+
+destructor TDAOPessoa.Destroy;
+begin
+  inherited;
+end;
+
+function TDAOPessoa.DataSet(DataSource: TDataSource): iDAOEntidade<iEntidadePessoa>;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOPessoa.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOPessoa.GetAll: iDAOEntidade<iEntidadePessoa>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoa.GetbyId(Id: Variant): iDAOEntidade<iEntidadePessoa>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoa.GetbyParams: iDAOEntidade<iEntidadePessoa>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+   //Criar MSG
+  end;
+end;
+
+function TDAOPessoa.Post: iDAOEntidade<iEntidadePessoa>;
+const
+  LSQL=('insert into pessoa('+
+                             'nome, '+
+                             'sobrenome, '+
+                             'tipo, '+
+                             'ativo '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':nome, '+
+                             ':sobrenome, '+
+                             ':tipo, '+
+                             ':ativo '+
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('nome'            , FPessoa.Nome)
+          .Params('sobrenome'       , FPessoa.SobreNome)
+          .Params('tipo'            , FPessoa.Tipo)
+          .Params('ativo'           , FPessoa.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FPessoa.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+end;
+
+function TDAOPessoa.Put: iDAOEntidade<iEntidadePessoa>;
+const
+  LSQL=('update pessoa set '+
+        'nome=:nome, '+
+        'sobrenome=:sobrenome, '+
+        'tipo=:tipo, '+
+        'ativo=:ativo '+
+        'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'              , FPessoa.Id)
+          .Params('nome'            , FPessoa.Nome)
+          .Params('sobrenome'       , FPessoa.SobreNome)
+          .Params('tipo'            , FPessoa.Tipo)
+          .Params('ativo'           , FPessoa.Ativo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOPessoa.Delete: iDAOEntidade<iEntidadePessoa>;
+const
+  LSQL=('delete from pesspa where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+ try
+  try
+    FQuery.SQL(LSQL)
+            .Params('id', FPessoa.Id)
+          .ExecSQL;
+  except
+    FConexao.Rollback;
+    raise Exception.Create(FMSG.MSGerroDelete);
+  end;
+ finally
+   FConexao.Commit;
+ end;
+
+end;
+
+
+end.

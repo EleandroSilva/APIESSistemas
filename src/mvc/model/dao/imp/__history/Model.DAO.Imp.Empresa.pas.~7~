@@ -1,0 +1,301 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Empresa;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.db,
+
+  DataSet.Serialize,
+  Uteis.Tratar.Mensagens,
+  Uteis,
+
+  Model.Conexao.Firedac.Interfaces,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Query,
+  Model.Imp.Query,
+
+  Model.DAO.Empresa.Interfaces,
+  Model.Entidade.Empresa.Interfaces,
+  Model.Imp.Entidade.Empresa;
+
+type
+  TDAOEmpresa = class(TInterfacedObject, iDAOEmpresa)
+    private
+      FEmpresa : iEntidadeEmpresa<iDAOEmpresa>;
+      FConexao : iConexao;
+      FDataSet : TDataSet;
+      FQuery   : iQuery;
+      FMSG     : TMensagens;
+
+      FUteis   : TUteis;
+      FKey     : String;
+      FTexto   : String;
+      FValue   : String;
+   const
+      FSQL=('select '+
+            'e.id, '+
+            'p.tipo as tipopessoa, '+
+            'case p.tipo when ''J'' then pj.cnpj else pf.cpf end cnpjcpf, '+
+            'case p.tipo when ''J'' then pj.inscest else pf.rg end IERG, '+
+            'p.nome, '+
+            'p.sobrenome, '+
+            'p.ativo, '+
+            'l.cep, '+
+            'l.logradouro, '+
+            'l.numero, '+
+            'l.bairro, '+
+            'l.municipio, '+
+            'l.estado, '+
+            'l.tipo as tipologradouro, '+
+            't.email, '+
+            't.dd, '+
+            't.telefone, '+
+            't.tipo tipocontato '+
+            'from empresa e '+
+            'inner join pessoa          p on p.id        = e.idpessoa '+
+            'left  join pessoafisica   pf on pf.idpessoa = p.id '+
+            'left  join pessoajuridica pj on pj.idpessoa = p.id '+
+            'left  join endereco        l on l.idpessoa  = p.id '+
+            'left  join contato         t on t.idpessoa  = p.id ');
+
+      procedure FiltroKey;
+      procedure FiltroValue;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New: iDAOEmpresa;
+
+      function DataSet(DataSource : TDataSource) : iDAOEmpresa; overload;
+      function DataSet                           : TDataSet;                       overload;
+      function GetAll                            : iDAOEmpresa; overload;
+      function GetbyId(Id : Variant)             : iDAOEmpresa;
+      function GetbyParams                       : iDAOEmpresa;
+      function Post                              : iDAOEmpresa;
+      function Put                               : iDAOEmpresa;
+      function Delete                            : iDAOEmpresa;
+
+      function This : iEntidadeEmpresa<iDAOEmpresa>;
+  end;
+implementation
+
+constructor TDAOEmpresa.Create;
+begin
+  FEmpresa := TEntidadeEmpresa<iDAOEmpresa>.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+  FUteis   := TUteis.Create;
+end;
+
+destructor TDAOEmpresa.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+class function TDAOEmpresa.New: iDAOEmpresa;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOEmpresa.This: iEntidadeEmpresa<iDAOEmpresa>;
+begin
+  Result := FEmpresa;
+end;
+
+procedure TDAOEmpresa.FiltroKey;
+begin
+  if not FEmpresa.Nome.IsEmpty then
+    FKey := 'p.nome' else
+  if not FEmpresa.SobreNome.IsEmpty then
+    FKey := 'p.sobrenome';
+  if not FEmpresa.PessoaJuridica.CNPJ.IsEmpty then
+    FKey := 'pj.cnpj';
+  if not FEmpresa.PessoaFisica.CPF.IsEmpty then
+    FKey := 'pf.cpf';
+  if not FEmpresa.Contato.Email.IsEmpty then
+    FKey := 'c.email';
+  if not FEmpresa.Contato.Telefone.IsEmpty then
+    FKey := 'c.telefone';
+
+  FiltroValue;
+end;
+
+procedure TDAOEmpresa.FiltroValue;
+begin
+  FTexto := '';
+  FValue := '';
+
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.Nome;
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.SobreNome;
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.PessoaJuridica.CNPJ;
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.PessoaFisica.CPF;
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.Contato.Email;
+  if FTexto.IsEmpty then
+    FTexto := FEmpresa.Contato.Telefone;
+
+  FValue := FTexto;
+end;
+
+
+function TDAOEmpresa.DataSet(DataSource: TDataSource): iDAOEmpresa;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOEmpresa.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOEmpresa.GetAll: iDAOEmpresa;
+begin
+  Result := Self;
+  try
+    try
+    FDataSet := FQuery
+                  .SQL(FSQL)
+                  .Open
+                .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEmpresa.GetbyId(Id: Variant): iDAOEmpresa;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where e.Id=:Id')
+                    .Params('Id', Id)
+                  .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //MSG
+  end;
+end;
+
+function TDAOEmpresa.GetbyParams : iDAOEmpresa;
+begin
+  Result := Self;
+  FiltroKey;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where ' + FUteis.Pesquisar(FKey, ';' + FValue))
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+   //Criar MSG
+  end;
+end;
+
+function TDAOEmpresa.Post: iDAOEmpresa;
+const
+  LSQL=('insert into empresa('+
+                             'idpessoa '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa '+
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa' , FEmpresa.IdPessoa)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id').Open.DataSet;
+    FEmpresa.Id(FDataSet.FieldByName('id').AsInteger);
+  end;
+end;
+
+function TDAOEmpresa.Put: iDAOEmpresa;
+const
+  LSQL=('update empresa set '+
+        'idpessoa=:idpessoa '+
+        'where id=:id ');
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'       , FEmpresa.Id)
+          .Params('idpessoa' , FEmpresa.IdPessoa)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOEmpresa.Delete: iDAOEmpresa;
+const
+  LSQL=('delete from empresa where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+ try
+  try
+    FQuery.SQL(LSQL)
+            .Params('id', FEmpresa.Id)
+          .ExecSQL;
+  except
+    FConexao.Rollback;
+    raise Exception.Create(FMSG.MSGerroDelete);
+  end;
+ finally
+   FConexao.Commit;
+ end;
+end;
+
+
+end.

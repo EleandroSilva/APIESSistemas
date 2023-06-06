@@ -1,0 +1,110 @@
+unit Model.DAO.Imp.Entidade.Pessoa.Fisica;
+
+interface
+
+uses
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query;
+
+type
+  TDAOPessoaFisica = class (TInterfacedObject, iDAOPessoaFisica)
+    private
+      FPessoaFisica : iEntidadePessoaFisica<iDAOPessoaFisica>;
+      FConexao      : iConexao;
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+      FUteis        : TUteis;
+      FMSG          : TMensagens;
+
+      const
+        FSQL ='select * from pessoafisica';
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOPessoaFisica;
+
+      function DataSet(DataSource : TDataSource) : iDAOPessoaFisica; overload;
+      function DataSet                           : TDataSet;         overload;
+      function GetAll                            : iDAOPessoaFisica;
+      function GetbyId(Id : Variant)             : iDAOPessoaFisica;
+      function GetbyParams                       : iDAOPessoaFisica;
+      function Post                              : iDAOPessoaFisica;
+      function Put                               : iDAOPessoaFisica;
+      function Delete                            : iDAOPessoaFisica;
+
+      function This : iEntidadePessoaFisica<iDAOPessoaFisica>;
+  end;
+
+implementation
+
+{ TDAOPessoaFisica }
+
+constructor TDAOPessoaFisica.Create;
+begin
+
+end;
+
+class function TDAOPessoaFisica.New: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.This: iEntidadePessoaFisica<iDAOPessoaFisica>;
+begin
+
+end;
+
+destructor TDAOPessoaFisica.Destroy;
+begin
+
+  inherited;
+end;
+
+function TDAOPessoaFisica.DataSet(DataSource: TDataSource): iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.DataSet: TDataSet;
+begin
+
+end;
+
+function TDAOPessoaFisica.GetAll: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.GetbyId(Id: Variant): iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.GetbyParams: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.Post: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.Put: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.Delete: iDAOPessoaFisica;
+begin
+
+end;
+
+end.

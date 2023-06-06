@@ -1,0 +1,60 @@
+unit Model.DAO.Imp.Entidade.Enderecos;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Interfaces,
+  Model.Entidade.Endereco.Interfaces,
+  Model.Imp.Entidade.Endereco,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query;
+
+type
+  TDAOEnderecos = class(TInterfacedObject, iDAOEntidade<iEntidadeEndereco<TDAOEnderecos>>)
+    private
+      FUteis    : TUteis;
+      FEndereco : iEntidadeEndereco<TDAOEnderecos>;
+      FConexao  : iConexao;
+      FDataSet  : TDataSet;
+      FQuery    : iQuery;
+      FMSG      : TMensagens;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEntidade<iEntidadeEndereco<TDAOEnderecos>>;
+
+  end;
+
+implementation
+
+{ TDAOEnderecos }
+
+constructor TDAOEnderecos.Create;
+begin
+  FEndereco := TEntidadeEndereco<TDAOEnderecos>.New(Self);
+  FConexao  := TModelConexaoFiredacMySQL.New;
+  FQuery    := TQuery.New;
+  FUteis    := TUteis.Create;
+end;
+
+destructor TDAOEnderecos.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+class function TDAOEnderecos.New: iDAOEntidade<iEntidadeEndereco<TDAOEnderecos>>;
+begin
+
+end;
+
+end.

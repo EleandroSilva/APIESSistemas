@@ -1,0 +1,227 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Controller.Usuario;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  Data.DB,
+
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Model.Imp.Controller;
+
+
+type
+  TVar = class
+    private
+      FTexto      : String;
+      FID         : Integer;
+      FIdEmpresa  : Integer;
+      FNome       : String;
+      FSobreNome  : String;
+      FEmail      : String;
+      FSenha      : String;
+      FJSONArray  : TJSONArray;
+      FBody       : TJSONValue;
+      FDataSource : TDataSource;
+    public
+      constructor Create;
+      destructor Destroy; override;
+  end;
+
+type
+  TControllerUsuario = class
+  private
+    class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Post(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Put(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+  public
+    class procedure Registry;
+  end;
+
+implementation
+
+{ TVar }
+
+constructor TVar.Create;
+begin
+  FDataSource := TDataSource.Create(nil);
+end;
+
+destructor TVar.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+
+class procedure TControllerUsuario.GetAll(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LController : iController;
+  LVar        : TVar;
+begin
+   LController := TController.New;
+   LVar        := TVar.Create;
+   LVar.FEmail := Req.Query.Field('email').AsString;
+   LVar.FSenha := Req.Query.Field('senha').AsString;
+   Try
+     if ((LVar.FEmail ='') and (LVar.FSenha ='')) then
+       LController
+           .Entidade
+             .Usuario
+             .GetAll
+           .DataSet(LVar.FDataSource)
+        else
+        LController
+           .Entidade
+             .Usuario
+             .This
+               .EMail(LVar.FEmail)
+               .Senha(LVar.FSenha)
+               .&End
+             .GetbyParams
+           .DataSet(LVar.FDataSource);
+
+     LVar.FJSONArray := LVar.FDataSource.DataSet.ToJSONArray();
+     LVar.FTexto     := LVar.FJSONArray.ToString;
+     Res.Send<TJSONArray>(LVar.FJSONArray);
+   Finally
+     FreeAndNil(LVar);
+   End;
+end;
+
+class procedure TControllerUsuario.GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LController : iController;
+  LVar        : TVar;
+begin
+   LController := TController.New;
+   LVar        := TVar.Create;
+   Try
+     LVar.FID := Req.Params['id'].ToInt64;
+     LController
+           .Entidade
+             .Usuario
+             .GetbyId(LVar.FID)
+           .DataSet(LVar.FDataSource);
+
+     LVar.FJSONArray := LVar.FDataSource.DataSet.ToJSONArray();
+     Res.Send<TJSONArray>(LVar.FJSONArray);
+   Finally
+     FreeAndNil(LVar);
+   End;
+end;
+
+class procedure TControllerUsuario.Post(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LController : iController;
+  LVar        : TVar;
+begin
+  LController := TController.New;
+  LVar        := TVar.Create;
+  try
+    LVar.FBody      := Req.Body<TJSONObject>;
+    LVar.FIdEmpresa := LVar.FBody.GetValue<Integer>('idempresa');
+    LVar.FNome      := LVar.FBody.GetValue<String>('nome');
+    LVar.FSobreNome := LVar.FBody.GetValue<String>('sobrenome');
+    LVar.FEmail     := LVar.FBody.GetValue<String>('email');
+    LVar.FSenha     := LVar.FBody.GetValue<String>('senha');
+
+    LController
+          .Entidade
+            .Usuario
+            .This
+              .IdEmpresa(LVar.FIdEmpresa)
+              .Nome(LVar.FNome)
+              .SobreNome(LVar.FSobreNome)
+              .EMail(LVar.FEmail)
+              .Senha(LVar.FSenha)
+              .&End
+            .Post;
+  finally
+    FreeAndNil(LVar);
+  end;
+end;
+
+class procedure TControllerUsuario.Put(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LController : iController;
+  LVar        : TVar;
+begin
+  LController := TController.New;
+  LVar        := TVar.Create;
+  try
+    LVar.FId        := Req.Params['id'].ToInt64;
+    LVar.FBody      := Req.Body<TJSONObject>;
+    LVar.FIdEmpresa := LVar.FBody.GetValue<Integer>('idempresa');
+    LVar.FNome      := LVar.FBody.GetValue<String>('nome');
+    LVar.FSobreNome := LVar.FBody.GetValue<String>('sobrenome');
+    LVar.FEmail     := LVar.FBody.GetValue<String>('email');
+    LVar.FSenha     := LVar.FBody.GetValue<String>('senha');
+
+    LController
+          .Entidade
+            .Usuario
+            .This
+              .Id(LVar.FID)
+              .Nome(LVar.FNome)
+              .SobreNome(LVar.FSobreNome)
+              .EMail(LVar.FEmail)
+              .Senha(LVar.FSenha)
+              .&End
+            .Put;
+  finally
+    FreeAndNil(LVar);
+  end;
+end;
+
+class procedure TControllerUsuario.Delete(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LId         : Integer;
+  LController : iController;
+begin
+  Try
+    LId := Req.Params['id'].ToInt64;
+    LController
+          .Entidade
+            .Usuario
+            .This
+              .Id(LId)
+              .&End
+            .Delete;
+   Finally
+    //MSG
+   End;
+end;
+
+class procedure TControllerUsuario.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('ess')
+      .Get('/usuarios'       ,TControllerUsuario.GetAll)
+      .Get('/usuarios/:id'   ,TControllerUsuario.GetbyId)
+      .Post('usuarios'       ,TControllerUsuario.Post)
+      .Put('usuarios/:id'    ,TControllerUsuario.Put)
+      .Delete('usuarios/:id' ,TControllerUsuario.Delete);
+end;
+
+end.

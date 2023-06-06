@@ -1,0 +1,58 @@
+unit Model.DAO.Imp.Entidade.Pessoa.Juridica;
+
+interface
+
+uses
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Pessoa.Juridica.Interfaces,
+  Model.Entidade.Pessoa.Juridica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query, System.SysUtils, Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query, Model.Imp.Entidade.Pessoa.Juridica;
+
+type
+  TDAOPessoaJuridica = class(TInterfacedObject, iDAOPessoaJuridica)
+    private
+      FPessoaJuridica : iEntidadePessoaJuridica<iDAOPessoaJuridica>;
+      FConexao        : iConexao;
+      FDataSet        : TDataSet;
+      FQuery          : iQuery;
+      FUteis          : TUteis;
+      FMSG            : TMensagens;
+
+      const
+        FSQL ='select * from pessoajuridica';
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOPessoaJuridica;
+  end;
+
+implementation
+
+{ TDAOPessoaJuridica }
+
+constructor TDAOPessoaJuridica.Create;
+begin
+  FPessoaJuridica := TEntidadePessoaJuridica<iDAOPessoaJuridica>.New(Self);
+  FConexao        := TModelConexaoFiredacMySQL.New;
+  FQuery          := TQuery.New;
+  FUteis          := TUteis.Create;
+end;
+
+destructor TDAOPessoaJuridica.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+class function TDAOPessoaJuridica.New: iDAOPessoaJuridica;
+begin
+
+end;
+
+end.

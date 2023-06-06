@@ -1,0 +1,38 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Usuario.Interfaces;
+
+interface
+
+uses
+  Model.DAO.Entidade.Interfaces, System.Classes;
+
+type
+  iEntidadeUsuario = interface
+    ['{BB7F9D43-61C1-4D10-87AD-33127DCBDAA9}']
+    function Id(Value : Integer)        : iEntidadeUsuario; overload;
+    function Id                         : Integer;          overload;
+    function IdEmpresa(Value : Integer) : iEntidadeUsuario; overload;
+    function IdEmpresa                  : Integer;          overload;
+    function Nome(Value : String)       : iEntidadeUsuario; overload;
+    function Nome                       : String;           overload;
+    function SobreNome(Value : String)  : iEntidadeUsuario; overload;
+    function SobreNome                  : String;           overload;
+    function EMail(Value : String)      : iEntidadeUsuario; overload;
+    function EMail                      : String;           overload;
+    function Senha(Value : String)      : iEntidadeUsuario; overload;
+    function Senha                      : String;           overload;
+
+    function &End : iDAOEntidade<iEntidadeUsuario>;
+  end;
+
+implementation
+
+end.

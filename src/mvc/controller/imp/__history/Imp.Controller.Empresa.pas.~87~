@@ -1,0 +1,347 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Imp.Controller.Empresa;
+
+interface
+
+
+
+uses
+  System.SysUtils,
+
+  System.JSON,
+
+  Data.DB,
+  FireDAC.Comp.Client,
+
+  DataSet.Serialize,
+  Horse,
+  Horse.BasicAuthentication,
+
+  Controller.Interfaces,
+  Imp.Controller, Web.HTTPApp;
+
+type
+  TVarEmpresa = class
+    private
+      FTexto      : String;
+      //Tabela Pessoa
+      FTipoPessoa : String;
+      FNome       : String;
+      FSobreNome  : String;
+      FAtivo      : Integer;
+      //Tabela pessoa juridica
+      FCNPJ       : String;
+      FInscEst    : String;
+      //Tabela pessoa fisica
+      FCPF        : String;
+      FRG         : String;
+      //Tabela contato
+      FEmail      : String;
+      FTipoContato: String;
+      FDD         : String;
+      FTelefone   : String;
+      //Tabela Empresa
+      FId         : Integer;
+      FIdPessoa   : Integer;
+
+      //Horse
+      FBody       : TJSONValue;
+      //JSON
+      FJSONArray  : TJSONArray;
+      //
+      FDataSource : TDataSource;
+      FController : iController;
+    public
+      constructor Create;
+      destructor Destroy; override;
+end;
+
+type
+  TControllerEmpresa = class
+  private
+    class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Post(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Put(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+    class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+  public
+    class procedure Registry;
+  end;
+
+implementation
+
+constructor TVarEmpresa.Create;
+begin
+  FController := TController.New;
+  FDataSource := TDataSource.Create(nil);
+end;
+
+destructor TVarEmpresa.Destroy;
+begin
+  FreeAndNil(FDataSource);
+  inherited;
+end;
+
+
+class procedure TControllerEmpresa.Post(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  lVar : TVarEmpresa;
+begin
+   lVar := TVarEmpresa.Create;
+  try
+    //Tabela Pessoa
+    lVar.FBody       := Req.Body<TJSONObject>;
+    lVar.FNome       := lVar.FBody.GetValue<String>('nome');
+    lVar.FSobreNome  := lVar.FBody.GetValue<String>('sobrenome');
+    lVar.FTipoPessoa := lVar.FBody.GetValue<String>('tipopessoa');
+    lVar.FAtivo      := lVar.FBody.GetValue<integer>('ativo');
+    try
+      LVar.FController
+                .Entidade
+                 .Pessoa
+                   .This
+                     .Nome(LVar.FNome)
+                     .SobreNome(LVar.FSobreNome)
+                     .Tipo(LVar.FTipoPessoa)
+                     .Ativo(LVar.FAtivo)
+                   .&End
+                 .Post
+                .DataSet(LVar.FDataSource);
+
+
+    lVar.FIdPessoa := LVar.FDataSource.DataSet.FieldByName('id').AsInteger;
+    except
+      raise Exception.Create('Erro ao tentar salvar pessoa');
+    end;
+
+    //Tabela contato
+    lVar.FEmail       := lVar.FBody.GetValue<String>('email');
+    lVar.FDD          := lVar.FBody.GetValue<String>('dd');
+    lVar.FTelefone    := lVar.FBody.GetValue<String>('telefone');
+    lVar.FTipoContato := lVar.FBody.GetValue<String>('tipocontato');
+    try
+      lVar.FController
+                   .Entidade
+                     .Contato
+                       .This
+                         .IdPessoa(lVar.FIdPessoa)
+                         .Email(lVar.FEmail)
+                         .DD(lVar.FDD)
+                         .Telefone(lVar.FTelefone)
+                         .Tipo(lVar.FTipoContato)
+                       .&End
+                     .Post
+                   .DataSet(lVar.FDataSource);
+    except
+      raise Exception.Create('Erro ao tentar salvar contato ');
+    end;
+
+    try
+    //Endereco
+    lVar.FController
+               .Entidade
+                 .Endereco
+                   .This
+                     .IdPessoa(lVar.FIdPessoa)
+                     .Cep(lVar.FBody.GetValue<String>('cep'))
+                     .Tipo(lVar.FBody.GetValue<String>('tipoendereco'))
+                     .Logradouro(lVar.FBody.GetValue<String>('logradouro'))
+                     .Numero(lVar.FBody.GetValue<String>('numero'))
+                     .Bairro(lVar.FBody.GetValue<String>('bairro'))
+                     .Municipio(lVar.FBody.GetValue<String>('municipio'))
+                     .Estado(lVar.FBody.GetValue<String>('estado'))
+                   .&End
+                 .Post
+               .DataSet(lVar.FDataSource);
+    except
+      raise Exception.Create('Erro ao tentar salvar endereço');
+    end;
+
+    try
+    //Tabela Pessoa Juridica
+    if lVar.FTipoPessoa='J' then
+      lVar.FController
+                 .Entidade
+                   .PessoaJuridica
+                   .This
+                     .IdPessoa(lVar.FIdPessoa)
+                     .CNPJ(lVar.FBody.GetValue<String>('cnpj'))
+                     .InscEst(lVar.FBody.GetValue<String>('inscest'))
+                    .&End
+                 .Post
+                 .DataSet(lVar.FDataSource);
+       except
+         raise Exception.Create('Erro ao tentar salvar pessoa jurídica');
+       end;
+
+      try
+       //tabela pessoa fisica
+       if lVar.FTipoPessoa='F' then
+       lVar.FController
+                 .Entidade
+                   .PessoaFisica
+                   .This
+                     .IdPessoa(lVar.FIdPessoa)
+                     .CPF(lVar.FBody.GetValue<String>('cpf'))
+                     .RG(lVar.FBody.GetValue<String>('rg'))
+                    .&End
+                 .Post
+                 .DataSet(lVar.FDataSource)
+      except
+        raise Exception.Create('Erro ao tentar salvar pessoa física');
+      end;
+
+    try
+      //Tabela Empresa
+      LVar.FController
+             .Entidade
+               .Empresa
+               .This
+                 .IdPessoa(lVar.FIdPessoa)
+                 .&End
+               .Post
+             .DataSet(LVar.FDataSource);
+    Except
+      raise Exception.Create('Error ao tentar salvar registro');
+    end;
+  finally
+    FreeAndNil(LVar);
+  end;
+end;
+
+
+class procedure TControllerEmpresa.GetAll(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LVar : TVarEmpresa;
+begin
+   LVar := TVarEmpresa.Create;
+   LVar.FCNPJ      := Req.Query.Field('cnpj').AsString;
+   LVar.FCPF       := Req.Query.Field('cpf').AsString;
+   LVar.FNome      := Req.Query.Field('nome').AsString;
+   LVar.FSobreNome := Req.Query.Field('sobrenome').AsString;
+   LVar.FEmail     := Req.Query.Field('email').AsString;
+   LVar.FTelefone  := Req.Query.Field('telefone').AsString;
+   Try
+     if ((LVar.FCNPJ ='') and  (LVar.FCPF ='') and (LVar.FNome ='') and (LVar.FSobreNome ='') and (LVar.FEmail='') and (LVar.FTelefone='')) then
+       LVar.FController
+             .Entidade
+               .Empresa
+                 .GetAll
+             .DataSet(LVar.FDataSource)
+       else
+       LVar.FController
+             .Entidade
+               .Empresa
+                 .This
+                   .PessoaJuridica
+                     .CNPJ(LVar.FCNPJ)
+                   .&End
+                   .PessoaFisica
+                     .CPF(LVar.FCPF)
+                   .&End
+                   .Pessoa
+                     .Nome(LVar.FNome)
+                     .SobreNome(LVar.FSobreNome)
+                   .&End
+                   .Contato
+                     .Email(lVar.FEmail)
+                     .Telefone(LVar.FTelefone)
+                   .&End
+                 .&End
+               .GetbyParams
+             .DataSet(LVar.FDataSource);
+
+     LVar.FJSONArray := LVar.FDataSource.DataSet.ToJSONArray();
+     LVar.FTexto := LVar.fJsonArray.ToString;
+     Res.Send<TJSONArray>(LVar.FJSONArray);
+   Finally
+     FreeAndNil(LVar);
+   End;
+end;
+
+class procedure TControllerEmpresa.GetbyId(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LVar : TVarEmpresa;
+begin
+   LVar := TVarEmpresa.Create;
+   Try
+     LVar.FId := Req.Params['id'].ToInt64;
+     LVar.FController
+           .Entidade
+             .Empresa
+             .GetbyId(LVar.FId)
+             .DataSet(LVar.FDataSource);
+
+     LVar.FJSONArray := LVar.FDataSource.DataSet.ToJSONArray();
+     Res.Send<TJSONArray>(LVar.FJSONArray);
+   Finally
+     FreeAndNil(LVar);
+   End;
+end;
+
+class procedure TControllerEmpresa.Put(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LVar : TVarEmpresa;
+begin
+  LVar := TVarEmpresa.Create;
+  try
+    LVar.FId       := Req.Params['id'].ToInt64;
+    LVar.FBody     := Req.Body<TJSONObject>;
+    LVar.FIdPessoa := LVar.FBody.GetValue<integer>('idpessoa');
+
+    LVar.FController
+             .Entidade
+               .Empresa
+               .This
+                 .Id(LVar.FId)
+                 .IdPessoa(LVar.FIdPessoa)
+                 .&End
+               .Put
+             .DataSet(LVar.FDataSource);
+  finally
+    FreeAndNil(LVar);
+  end;
+end;
+
+class procedure TControllerEmpresa.Delete(Req: THorseRequest; Res: THorseResponse; Next : TProc);
+var
+  LId  : Integer;
+  LVar : TVarEmpresa;
+begin
+   LVar := TVarEmpresa.Create;
+   LId := Req.Params['id'].ToInt64;
+   Try
+     LVar.FController
+               .Entidade
+                 .Empresa
+                   .This
+                   .Id(LId)
+                   .&End
+                 .Delete
+               .DataSet(LVar.FDataSource);
+   Finally
+     FreeAndNil(LVar);
+   End;
+end;
+
+class procedure TControllerEmpresa.Registry;
+begin
+  THorse
+      .Group
+      .Prefix('ess')
+         .Get('/empresas'     , GetAll)
+         .Get('/empresas/:id' , GetbyId)
+        .Post('empresas'      , Post)
+         .Put('empresas/:id'  , Put)
+      .Delete('empresas/:id'  , Delete);
+end;
+
+end.

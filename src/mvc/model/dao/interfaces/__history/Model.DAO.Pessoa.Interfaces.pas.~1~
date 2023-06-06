@@ -1,0 +1,13 @@
+unit Model.DAO.Pessoa.Interfaces;
+
+interface
+
+type
+  iDAOPessoa = interface
+    ['{050174A2-AB18-46D2-B2BB-161C15179CCD}']
+
+  end;
+
+implementation
+
+end.

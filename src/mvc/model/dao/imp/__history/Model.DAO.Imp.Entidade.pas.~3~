@@ -1,0 +1,195 @@
+unit Model.DAO.Imp.Entidade;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query;
+
+type
+  TDAOEntidade<T : iInterface>= class(TInterfacedObject, iDAOEntidade<T>)
+    private
+      [Weak]
+      FSQL     : String;
+      FParent  : T;
+      FConexao : iConexao;
+      FDataSet : TDataSet;
+      FQuery   : iQuery;
+      FMSG     : TMensagens;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iDAOEntidade<T>;
+
+      function DataSet(DataSource : TDataSource) : iDAOEntidade<T>; overload;
+      function DataSet                           : TDataSet;        overload;
+      function GetAll                            : iDAOEntidade<T>;
+      function GetbyId(Id : Variant)             : iDAOEntidade<T>;
+      function GetbyParams                       : iDAOEntidade<T>;
+      function Post                              : iDAOEntidade<T>;
+      function Put                               : iDAOEntidade<T>;
+      function Delete                            : iDAOEntidade<T>;
+
+      function This : T;
+  end;
+
+implementation
+
+{ TDAOEntidade<T> }
+
+constructor TDAOEntidade<T>.Create(Parent: T);
+begin
+  FParent  := Parent;
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+end;
+
+class function TDAOEntidade<T>.New(Parent: T): iDAOEntidade<T>;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOEntidade<T>.This: T;
+begin
+  Result := FParent;
+end;
+
+destructor TDAOEntidade<T>.Destroy;
+begin
+  inherited;
+end;
+
+function TDAOEntidade<T>.DataSet(DataSource: TDataSource): iDAOEntidade<T>;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOEntidade<T>.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOEntidade<T>.Delete: iDAOEntidade<T>;
+begin
+  FSQL := '';
+  Result := Self;
+end;
+
+function TDAOEntidade<T>.GetAll: iDAOEntidade<T>;
+begin
+  Result := Self;
+  FSQL := '';
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEntidade<T>.GetbyId(Id: Variant): iDAOEntidade<T>;
+begin
+  Result := Self;
+  FSQL :='';
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEntidade<T>.GetbyParams: iDAOEntidade<T>;
+begin
+  Result := Self;
+  FSQL :='';
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+      //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+   //Criar MSG
+  end;
+end;
+
+function TDAOEntidade<T>.Post: iDAOEntidade<T>;
+begin
+  FSQL:=('insert into contato('+
+                             'idpessoa, '+
+                             'email, '+
+                             'dd, '+
+                             'telefone, '+
+                             'tipo '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa, '+
+                             ':email, '+
+                             ':dd, '+
+                             ':telefone, '+
+                             ':tipo '+
+                            ')'
+       );
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(FSQL)
+          //.Params('idpessoa' , FContato.IdPessoa)
+          //.Params('email'    , FContato.Email)
+          //.Params('dd'       , FContato.DD)
+          //.Params('telefone' , FContato.Telefone)
+          //.Params('tipo'     , FContato.Tipo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FContato.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+end;
+
+function TDAOEntidade<T>.Put: iDAOEntidade<T>;
+begin
+
+end;
+
+end.

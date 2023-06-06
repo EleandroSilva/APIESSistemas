@@ -1,0 +1,7 @@
+unit Model.Entidade.Pessoa.Fisica.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,30 @@
+unit Model.DAO.Entidade.Endereco.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Data.DB,
+
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iDAOEntidadeEndereco = interface
+    ['{98F33D04-9A99-4C56-8CE4-5C6988F5E35D}']
+    function DataSet(DataSource : TDataSource) : iDAOEntidadeEndereco; overload;
+    function DataSet                           : TDataSet;             overload;
+    function GetAll                            : iDAOEntidadeEndereco;
+    function GetbyId(Id : Variant)             : iDAOEntidadeEndereco;
+    function GetbyParams                       : iDAOEntidadeEndereco;
+    function Post                              : iDAOEntidadeEndereco;
+    function Put                               : iDAOEntidadeEndereco;
+    function Delete                            : iDAOEntidadeEndereco;
+
+    function This : iEntidadeEndereco<iDAOEntidadeEndereco>;
+    //function &End : T;
+  end;
+
+implementation
+
+end.

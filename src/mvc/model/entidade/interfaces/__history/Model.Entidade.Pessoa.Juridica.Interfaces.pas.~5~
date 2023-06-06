@@ -1,0 +1,25 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Pessoa.Juridica.Interfaces;
+
+interface
+
+type
+  iPessoaJuridica = interface
+    ['{99E4B8FC-09FF-446A-AA15-D43B1B3C80E1}']
+    function CNPJ(Value : String)    : iPessoaJuridica; overload;
+    function CNPJ                    : String;          overload;
+    function InscEst(Value : String) : iPessoaJuridica; overload;
+    function InscEst                 : String;          overload;
+  end;
+
+implementation
+
+end.

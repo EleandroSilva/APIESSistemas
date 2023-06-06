@@ -1,0 +1,226 @@
+unit Model.DAO.Imp.Entidade.Endereco;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Endereco.Interfaces,
+  Model.Entidade.Endereco.Interfaces,
+  Model.Imp.Entidade.Endereco,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query;
+
+type
+  TDAOEndereco = class(TInterfacedObject, iDAOEndereco)
+    private
+      FEndereco : iEntidadeEndereco<iDAOEndereco>;
+      FConexao  : iConexao;
+      FDataSet  : TDataSet;
+      FQuery    : iQuery;
+      FUteis    : TUteis;
+      FMSG      : TMensagens;
+
+      const
+        FSQL ='select * from endereco';
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEndereco;
+
+      function DataSet(DataSource : TDataSource) : iDAOEndereco; overload;
+      function DataSet                           : TDataSet;     overload;
+      function GetAll                            : iDAOEndereco;
+      function GetbyId(Id : Variant)             : iDAOEndereco;
+      function GetbyParams                       : iDAOEndereco;
+      function Post                              : iDAOEndereco;
+      function Put                               : iDAOEndereco;
+      function Delete                            : iDAOEndereco;
+
+      function This : iEntidadeEndereco<iDAOEndereco>;
+  end;
+
+implementation
+
+{ TDAOEndereco }
+
+constructor TDAOEndereco.Create;
+begin
+  FEndereco := TEntidadeEndereco<iDAOEndereco>.New(Self);
+  FConexao  := TModelConexaoFiredacMySQL.New;
+  FQuery    := TQuery.New;
+  FUteis    := TUteis.Create;
+end;
+
+function TDAOEndereco.This: iEntidadeEndereco<iDAOEndereco>;
+begin
+  Result := FEndereco;
+end;
+
+class function TDAOEndereco.New: iDAOEndereco;
+begin
+  Result := Self.Create;
+end;
+
+destructor TDAOEndereco.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+function TDAOEndereco.DataSet(DataSource: TDataSource): iDAOEndereco;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOEndereco.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOEndereco.GetAll: iDAOEndereco;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEndereco.GetbyId(Id: Variant): iDAOEndereco;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOEndereco.GetbyParams: iDAOEndereco;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(cep) like lower(:cep) and (municipio=:municipio))) ')
+                   .Params('cep', FEndereco.Cep)
+                   .Params('municipio', FEndereco.Municipio)
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+
+  end;
+end;
+
+function TDAOEndereco.Post: iDAOEndereco;
+const
+  LSQL=('insert into endereco('+
+                             'idpessoa, '+
+                             'cep, '+
+                             'tipo, '+
+                             'logradouro, '+
+                             'numero, '+
+                             'bairro, '+
+                             'municipio, '+
+                             'estado, '+
+                             'complemento '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa, '+
+                             ':cep, '+
+                             ':tipo, '+
+                             ':logradouro, '+
+                             ':numero, '+
+                             ':bairro, '+
+                             ':municipio, '+
+                             ':estado, '+
+                             ':complemento '+
+                            ')'
+       );
+begin
+Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa'    , FEndereco.IdPessoa)
+          .Params('cep'         , FEndereco.Cep)
+          .Params('tipo'        , FEndereco.Tipo)
+          .Params('logradouro'  , FEndereco.Logradouro)
+          .Params('numero'      , FEndereco.Numero)
+          .Params('bairro'      , FEndereco.Bairro)
+          .Params('municipio'   , FEndereco.Municipio)
+          .Params('estado'      , FEndereco.Estado)
+          .Params('complemento' , FEndereco.Complemento)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+end;
+
+function TDAOEndereco.Put: iDAOEndereco;
+const
+  LSQL=('update endereco set '+
+        'idpessoa=:idpessoa, '+
+        'cep=:cep, '+
+        'tipo=:tipo, '+
+        'logradouro=:logradouro, '+
+        'numero=:numero, '+
+        'bairro=:bairro, '+
+        'municipio=:municipio, '+
+        'estado=:estado, '+
+        'complemento=:complemento '+
+        'where id=:id '
+       );
+begin
+
+end;
+
+function TDAOEndereco.Delete: iDAOEndereco;
+begin
+
+end;
+
+end.

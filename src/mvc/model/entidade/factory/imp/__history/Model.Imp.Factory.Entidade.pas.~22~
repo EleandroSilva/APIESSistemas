@@ -1,0 +1,134 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Factory.Entidade;
+
+interface
+
+uses
+  Model.Factory.Entidade.Interfaces,
+  Model.Entidade.Usuario.Interfaces,
+  Model.Entidade.Empresa.Interfaces,
+  Model.Entidade.Pessoa.Interfaces,
+  Model.Entidade.Contato.Interfaces,
+  Model.Imp.Entidade.Usuario,
+
+  Model.DAO.Endereco.Interfaces,
+  Model.DAO.Entidade.Interfaces,
+  Model.DAO.Pessoa.Juridica.Interfaces,
+  Model.DAO.Pessoa.Fisica.Interfaces,
+  Model.DAO.Contato.Interfaces,
+  Model.DAO.Pessoa.Interfaces,
+
+  Model.DAO.Imp.Empresa,
+  Model.DAO.Imp.Contato,
+  Model.DAO.Imp.Endereco,
+  Model.DAO.Imp.Pessoa.Juridica,
+  Model.DAO.Imp.Pessoa.Fisica;
+
+type
+  TFactoryEntidade = class(TInterfacedObject, iFactoryEntidade)
+    private
+      FUsuario        : iDAOEntidade<iEntidadeUsuario>;
+      FEmpresa        : iDAOEntidade<iEntidadeEmpresa>;
+      FPessoa         : iDAOPessoa;
+      FContato        : iDAOContato;
+      FEndereco       : iDAOEndereco;
+      FPessoaFisica   : iDAOPessoaFisica;
+      FPessoaJuridica : iDAOPessoaJuridica;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New: iFactoryEntidade;
+
+      function Usuario        : iDAOEntidade<iEntidadeUsuario>;
+      function Empresa        : iDAOEntidade<iEntidadeEmpresa>;
+      function Pessoa         : iDAOPessoa;
+      function Contato        : iDAOContato;
+      function Endereco       : iDAOEndereco;
+      function PessoaFisica   : iDAOPessoaFisica;
+      function PessoaJuridica : iDAOPessoaJuridica;
+  end;
+
+implementation
+
+{ TFactoryEntidade }
+
+constructor TFactoryEntidade.Create;
+begin
+  //
+end;
+
+class function TFactoryEntidade.New: iFactoryEntidade;
+begin
+  Result := Self.Create;
+end;
+
+destructor TFactoryEntidade.Destroy;
+begin
+  inherited;
+end;
+
+function TFactoryEntidade.Contato: iDAOContato;
+begin
+  if not Assigned(FContato) then
+    FContato := TDAOContato.New;
+
+  Result := FContato;
+end;
+
+function TFactoryEntidade.Pessoa: iDAOPessoa;
+begin
+  if not Assigned(FPessoa) then
+    FPessoa := TDAOPessoa.New;
+
+  Result := FPessoa;
+end;
+
+function TFactoryEntidade.PessoaFisica: iDAOPessoaFisica;
+begin
+  if not Assigned(FPessoaFisica) then
+    FPessoaFisica := TDAOPessoaFisica.New;
+
+  Result := FPessoaFisica;
+end;
+
+function TFactoryEntidade.PessoaJuridica: iDAOPessoaJuridica;
+begin
+  if not Assigned(FPessoaJuridica) then
+    FPessoaJuridica := TDAOPessoaJuridica.New;
+
+  Result := FPessoaJuridica;
+end;
+
+function TFactoryEntidade.Empresa: iDAOEntidade<iEntidadeEmpresa>;
+begin
+  if not Assigned(FEmpresa) then
+    FEmpresa := TDAOEmpresa.New;
+
+  Result := FEmpresa;
+end;
+
+function TFactoryEntidade.Endereco: iDAOEndereco;
+begin
+  if not Assigned(FEndereco) then
+    FEndereco := TDAOEndereco.New;
+
+  Result := FEndereco;
+end;
+
+function TFactoryEntidade.Usuario:iDAOEntidade<iEntidadeUsuario>;
+begin
+  if not Assigned(FUsuario) then
+    FUsuario := TDAOUsuario.New;
+
+  Result := FUsuario;
+end;
+
+end.

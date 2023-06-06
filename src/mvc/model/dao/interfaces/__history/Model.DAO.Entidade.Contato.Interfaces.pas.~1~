@@ -1,0 +1,7 @@
+unit Model.DAO.Entidade.Contato.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,83 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Pessoa.Juridica;
+
+interface
+
+uses
+  Model.Entidade.Pessoa.Juridica.Interfaces,
+  Model.Entidade.Endereco.Interfaces,
+  Model.Imp.Entidade.Endereco;
+
+type
+ TEntidadePessoaJuridica = class(TInterfacedObject, iPessoaJuridica)
+   private
+     FCNPJ    : String;
+     FInscEst : String;
+     FEndereco : iEntidadeEndereco<iPessoaJuridica>; //injeção de dependência interface iEndereco
+   public
+     constructor Create;
+     destructor Destroy; override;
+     class function New : iPessoaJuridica;
+
+     function CNPJ(Value : String)    : iPessoaJuridica; overload;
+     function CNPJ                    : String;          overload;
+     function InscEst(Value : String) : iPessoaJuridica; overload;
+     function InscEst                 : String;          overload;
+
+     function Endereco : iEntidadeEndereco<iPessoaJuridica>;
+ end;
+
+implementation
+
+{ TEntidadePessoaJuridica }
+constructor TEntidadePessoaJuridica.Create;
+begin
+  FEndereco := TEntidadeEndereco<iPessoaJuridica>.New(Self);
+end;
+
+class function TEntidadePessoaJuridica.New: iPessoaJuridica;
+begin
+  Result := Self.Create;
+end;
+
+function TEntidadePessoaJuridica.Endereco: iEntidadeEndereco<iPessoaJuridica>;
+begin
+  Result := FEndereco;
+end;
+
+destructor TEntidadePessoaJuridica.Destroy;
+begin
+  inherited;
+end;
+
+function TEntidadePessoaJuridica.CNPJ(Value: String): iPessoaJuridica;
+begin
+  Result := Self;
+  FCNPJ := Value;
+end;
+
+function TEntidadePessoaJuridica.CNPJ: String;
+begin
+  Result := FCNPJ;
+end;
+
+function TEntidadePessoaJuridica.InscEst(Value: String): iPessoaJuridica;
+begin
+  Result := Self;
+  FInscEst := Value;
+end;
+
+function TEntidadePessoaJuridica.InscEst: String;
+begin
+  Result := FInscEst;
+end;
+
+end.

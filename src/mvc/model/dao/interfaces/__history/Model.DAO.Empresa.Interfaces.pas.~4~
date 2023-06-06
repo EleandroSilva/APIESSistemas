@@ -1,0 +1,25 @@
+unit Model.DAO.Empresa.Interfaces;
+
+interface
+uses
+  Data.DB,
+  Model.Entidade.Empresa.Interfaces;
+
+type
+  iDAOEmpresa = interface
+    ['{7BCC90F3-CCBC-49BA-A9B2-97B0CC478D67}']
+    function DataSet(DataSource : TDataSource) : iDAOEmpresa; overload;
+    function DataSet                           : TDataSet;    overload;
+    function GetAll                            : iDAOEmpresa;
+    function GetbyId(Id : Variant)             : iDAOEmpresa;
+    function GetbyParams                       : iDAOEmpresa;
+    function Post                              : iDAOEmpresa;
+    function Put                               : iDAOEmpresa;
+    function Delete                            : iDAOEmpresa;
+
+    function This : iEntidadeEmpresa<iDAOEmpresa>;
+  end;
+
+implementation
+
+end.

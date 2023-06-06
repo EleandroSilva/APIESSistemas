@@ -1,0 +1,102 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Pessoa.Juridica;
+
+interface
+
+uses
+  Model.Entidade.Pessoa.Juridica.Interfaces;
+
+
+type
+ TEntidadePessoaJuridica = class(TInterfacedObject, iPessoaJuridica)
+   private
+     FId       : Integer;
+     FIdPessoa : Integer;
+     FCNPJ     : String;
+     FInscEst  : String;
+   public
+     constructor Create;
+     destructor Destroy; override;
+     class function New : iPessoaJuridica;
+
+     function Id(Value : Integer)      : iPessoaJuridica; overload;
+     function Id                       : Integer;         overload;
+     function IdPessoa(Value : Integer): iPessoaJuridica; overload;
+     function IdPessoa                 : Integer;         overload;
+     function CNPJ(Value : String)     : iPessoaJuridica; overload;
+     function CNPJ                     : String;          overload;
+     function InscEst(Value : String)  : iPessoaJuridica; overload;
+     function InscEst                  : String;          overload;
+ end;
+
+implementation
+
+{ TEntidadePessoaJuridica }
+constructor TEntidadePessoaJuridica.Create;
+begin
+  //
+end;
+
+class function TEntidadePessoaJuridica.New: iPessoaJuridica;
+begin
+  Result := Self.Create;
+end;
+
+destructor TEntidadePessoaJuridica.Destroy;
+begin
+  inherited;
+end;
+
+function TEntidadePessoaJuridica.Id(Value: Integer): iPessoaJuridica;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadePessoaJuridica.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadePessoaJuridica.IdPessoa(Value: String): iPessoaJuridica;
+begin
+  Result := Self;
+  FIdPessoa := Value;
+end;
+
+function TEntidadePessoaJuridica.IdPessoa : Integer;
+begin
+  Result := FIdPessoa;
+end;
+
+function TEntidadePessoaJuridica.CNPJ(Value: String): iPessoaJuridica;
+begin
+  Result := Self;
+  FCNPJ := Value;
+end;
+
+function TEntidadePessoaJuridica.CNPJ: String;
+begin
+  Result := FCNPJ;
+end;
+
+function TEntidadePessoaJuridica.InscEst(Value: String): iPessoaJuridica;
+begin
+  Result := Self;
+  FInscEst := Value;
+end;
+
+function TEntidadePessoaJuridica.InscEst: String;
+begin
+  Result := FInscEst;
+end;
+
+end.

@@ -1,0 +1,7 @@
+unit Model.DAO.Entidade.Pessoa.Juridica.Interfaces;
+
+interface
+
+implementation
+
+end.

@@ -1,0 +1,30 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Entidade.Pessoa.Fisica.Interfaces;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iPessoaFisica = interface
+    ['{130278CD-70E3-4971-87BD-3A7890949EEE}']
+    function CPF(Value : String) : iPessoaFisica; overload;
+    function CPF                 : String;        overload;
+    function RG(Value : String)  : iPessoaFisica; overload;
+    function RG                  : String;        overload;
+
+    function Endereco : iEntidadeEndereco<iPessoaFisica>;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,140 @@
+{*******************************************************}
+{                                                       }
+{                      ES Sistemas                      }
+{                                                       }
+{ Empresas de Sistemas 2003-2023 www.bemoreweb.com.br   }
+{                     (17)98169-5336                    }
+{                                                       }
+{*******************************************************}
+
+unit Model.Imp.Configuracao.MySQL;
+
+interface
+
+uses
+  System.SysUtils,
+  System.IniFiles,
+
+  Vcl.Forms,
+
+  Model.Conexao.Configuracao.MySQL.Interfaces;
+
+
+type
+  TConfiguracaoBasedados= class(TInterfacedObject, iConfiguracaoMySQL)
+    private
+      FArquivoIni   : TIniFile;
+      FDiretorioexe : String;
+      procedure CriarArquivo;
+    public
+      constructor Create;
+
+      destructor Destroy; override;
+      class function New : iConfiguracaoMySQL;
+      function ServerHost     : String;
+      function Port           : String;
+      function Database       : String;
+      function UserName       : String;
+      function Password       : String;
+      function DriverName     : String;
+      function LibraryName    : String;
+      function VendorLib      : String;
+      function GetDriveFunc   : String;
+      function ConnectionName : String;
+end;
+
+implementation
+
+{ TConfiguracaoBasedados }
+
+constructor TConfiguracaoBasedados.Create;
+begin
+  FDiretorioexe := (ExtractFilePath(Application.ExeName));
+  if not FileExists(ExtractFilePath(Application.ExeName)+'ConfiguracaoMySQL.ini') then
+    CriarArquivo;
+
+  FArquivoIni := TIniFile.Create(FDiretorioexe + 'ConfiguracaoMySQL.ini');
+end;
+
+procedure TConfiguracaoBasedados.CriarArquivo;
+begin
+  FDiretorioexe := (ExtractFilePath(Application.ExeName));
+
+  FArquivoIni := TIniFile.Create(FDiretorioexe + 'ConfiguracaoMySQL.ini');
+  try
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ServerHost'     , 'mysql670.umbler.com');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Port'           , '41890');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Database'       , 'essistemas');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'UserName'       , 'esilva');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'Password'       , 'EleandroSilva');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'DriverName'     , 'MySQL');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'LibraryName'    , 'dbxmys.dll');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'VendorLib'      , FDiretorioexe+'libmysql.dll');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'GetDriveFunc'   , 'getSQLDriverMySQL');
+    FArquivoIni.WriteString('ConfiguracaoMySQL', 'ConnectionName' , 'MYSQLCONNECTION');
+  finally
+    FreeAndNil(FArquivoIni);
+  end;
+end;
+
+class function TConfiguracaoBasedados.New: iConfiguracaoMySQL;
+begin
+  Result := Self.Create;
+end;
+
+destructor TConfiguracaoBasedados.Destroy;
+begin
+  inherited;
+end;
+
+function TConfiguracaoBasedados.ServerHost: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'ServerHost', Result);
+end;
+
+function TConfiguracaoBasedados.Port: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Port', Result);
+end;
+
+function TConfiguracaoBasedados.Database: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Database', Result);
+end;
+
+function TConfiguracaoBasedados.UserName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'UserName', Result);
+end;
+
+function TConfiguracaoBasedados.Password: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'Password', Result);
+end;
+
+function TConfiguracaoBasedados.DriverName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'DriverName', Result);
+end;
+
+function TConfiguracaoBasedados.LibraryName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'LibraryName', Result);
+end;
+
+function TConfiguracaoBasedados.VendorLib: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'VendorLib', Result);
+end;
+
+function TConfiguracaoBasedados.GetDriveFunc: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'GetDriveFunc', Result);
+end;
+
+function TConfiguracaoBasedados.ConnectionName: String;
+begin
+  Result := FArquivoIni.ReadString('ConfiguracaoMySQL', 'CoonectionName', Result);
+end;
+
+end.

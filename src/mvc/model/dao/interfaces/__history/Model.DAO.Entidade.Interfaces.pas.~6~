@@ -1,0 +1,37 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Entidade.Interfaces;
+
+interface
+
+uses
+  System.JSON,
+
+  Data.DB;
+
+type
+  iDAOContato<T> = interface
+    ['{98F33D04-9A99-4C56-8CE4-5C6988F5E35D}']
+    function DataSet(DataSource : TDataSource) : iDAOContato<T>; overload;
+    function DataSet                           : TDataSet;        overload;
+    function GetAll                            : iDAOContato<T>;
+    function GetbyId(Id : Variant)             : iDAOContato<T>;
+    function GetbyParams                       : iDAOContato<T>;
+    function Post                              : iDAOContato<T>;
+    function Put                               : iDAOContato<T>;
+    function Delete                            : iDAOContato<T>;
+
+    function This : T;
+    //function &End : T;
+  end;
+
+implementation
+
+end.

@@ -1,0 +1,7 @@
+unit Model.Entidade.Contato.Interfaces;
+
+interface
+
+implementation
+
+end.

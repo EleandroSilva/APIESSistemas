@@ -1,0 +1,195 @@
+unit Model.DAO.Imp.Entidade.Pessoa.Juridica;
+
+interface
+
+uses
+  System.SysUtils,
+
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Pessoa.Juridica.Interfaces,
+  Model.Entidade.Pessoa.Juridica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query,
+  Model.Imp.Entidade.Pessoa.Juridica;
+
+type
+  TDAOPessoaJuridica = class(TInterfacedObject, iDAOPessoaJuridica)
+    private
+      FPessoaJuridica : iEntidadePessoaJuridica<iDAOPessoaJuridica>;
+      FConexao        : iConexao;
+      FDataSet        : TDataSet;
+      FQuery          : iQuery;
+      FUteis          : TUteis;
+      FMSG            : TMensagens;
+
+      const
+        FSQL ='select * from pessoajuridica';
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOPessoaJuridica;
+
+      function DataSet(DataSource : TDataSource) : iDAOPessoaJuridica; overload;
+      function DataSet                           : TDataSet;     overload;
+      function GetAll                            : iDAOPessoaJuridica;
+      function GetbyId(Id : Variant)             : iDAOPessoaJuridica;
+      function GetbyParams                       : iDAOPessoaJuridica;
+      function Post                              : iDAOPessoaJuridica;
+      function Put                               : iDAOPessoaJuridica;
+      function Delete                            : iDAOPessoaJuridica;
+
+      function This : iEntidadePessoaJuridica<iDAOPessoaJuridica>;
+  end;
+
+implementation
+
+{ TDAOPessoaJuridica }
+
+constructor TDAOPessoaJuridica.Create;
+begin
+  FPessoaJuridica := TEntidadePessoaJuridica<iDAOPessoaJuridica>.New(Self);
+  FConexao        := TModelConexaoFiredacMySQL.New;
+  FQuery          := TQuery.New;
+  FUteis          := TUteis.Create;
+end;
+
+class function TDAOPessoaJuridica.New: iDAOPessoaJuridica;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOPessoaJuridica.This: iEntidadePessoaJuridica<iDAOPessoaJuridica>;
+begin
+  Result := FPessoaJuridica;
+end;
+
+destructor TDAOPessoaJuridica.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+function TDAOPessoaJuridica.DataSet(DataSource: TDataSource): iDAOPessoaJuridica;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOPessoaJuridica.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOPessoaJuridica.GetAll: iDAOPessoaJuridica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoaJuridica.GetbyId(Id: Variant): iDAOPessoaJuridica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoaJuridica.GetbyParams: iDAOPessoaJuridica;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(cnpj) like lower(:cnpj)) ')
+                   .Params('cnpj', FPessoaJuridica.CNPJ)
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+
+  end;
+end;
+
+function TDAOPessoaJuridica.Post: iDAOPessoaJuridica;
+const
+  LSQL=('insert into pessoajuridica('+
+                             'idpessoa, '+
+                             'cnpj, '+
+                             'inscest '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa, '+
+                             ':cnpj, '+
+                             ':inscest '+
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa' , FPessoaJuridica.IdPessoa)
+          .Params('cnpj'     , FPessoaJuridica.CNPJ)
+          .Params('inscest'  , FPessoaJuridica.InscEst)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FEndereco.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+end;
+
+function TDAOPessoaJuridica.Put: iDAOPessoaJuridica;
+begin
+
+end;
+
+
+function TDAOPessoaJuridica.Delete: iDAOPessoaJuridica;
+begin
+
+end;
+
+end.

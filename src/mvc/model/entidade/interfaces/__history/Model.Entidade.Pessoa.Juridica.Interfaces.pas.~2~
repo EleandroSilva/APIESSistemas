@@ -1,0 +1,21 @@
+unit Model.Entidade.Pessoa.Juridica.Interfaces;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iPessoaJuridica = interface
+    ['{99E4B8FC-09FF-446A-AA15-D43B1B3C80E1}']
+    function CNPJ(Value : String)    : iPessoaJuridica; overload;
+    function CNPJ                    : String;          overload;
+    function InscEst(Value : String) : iPessoaJuridica; overload;
+    function InscEst                 : String;          overload;
+
+    function Endereco : iEndereco<iPessoaJuridica>;
+  end;
+
+implementation
+
+end.

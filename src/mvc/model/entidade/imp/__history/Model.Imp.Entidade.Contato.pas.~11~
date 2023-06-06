@@ -1,0 +1,141 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Contato;
+
+interface
+
+uses
+  Model.Entidade.Contato.Interfaces,
+  Model.DAO.Entidade.Interfaces;
+
+type
+  TEntidadeContato = class(TInterfacedObject, iEntidadeContato)
+    private
+      [weak]
+      FParent   : iDAOEntidade<iEntidadeContato>;
+      FId       : Integer;
+      FIdPessoa : Integer;
+      FEmail    : String;
+      FDD       : String;
+      FTelefone : String;
+      FTipo     : String;
+    public
+      constructor Create(Parent : iDAOEntidade<iEntidadeContato>);
+      destructor Destroy; override;
+      class function New(Parent : iDAOEntidade<iEntidadeContato>): iEntidadeContato;
+
+      function Id(Value : Integer)       : iEntidadeContato; overload;
+      function Id                        : Integer;          overload;
+      function IdPessoa(Value : Integer) : iEntidadeContato; overload;
+      function IdPessoa                  : Integer;          overload;
+      function Email(Value : String)     : iEntidadeContato; overload;
+      function Email                     : String;           overload;
+      function DD(Value : String)        : iEntidadeContato; overload;
+      function DD                        : String;           overload;
+      function Telefone(Value : String)  : iEntidadeContato; overload;
+      function Telefone                  : String;           overload;
+      function Tipo(Value : String)      : iEntidadeContato; overload;
+      function Tipo                      : String;           overload;
+
+      function &End : iDAOEntidade<iEntidadeContato>;
+  end;
+
+implementation
+
+{ TEntidadeContato }
+
+constructor TEntidadeContato.Create(Parent: iDAOEntidade<iEntidadeContato>);
+begin
+  FParent := Parent;
+end;
+
+class function TEntidadeContato.New(Parent: iDAOEntidade<iEntidadeContato>): iEntidadeContato;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeContato.&End: iDAOEntidade<iEntidadeContato>;
+begin
+  Result := FParent;
+end;
+
+destructor TEntidadeContato.Destroy;
+begin
+  //
+  inherited;
+end;
+
+function TEntidadeContato.Id(Value: Integer): iEntidadeContato;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadeContato.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeContato.IdPessoa(Value: Integer): iEntidadeContato;
+begin
+  Result := Self;
+  FIdPessoa := Value;
+end;
+
+function TEntidadeContato.IdPessoa: Integer;
+begin
+  Result := FIdPessoa;
+end;
+
+function TEntidadeContato.Email(Value: String): iEntidadeContato;
+begin
+  Result := Self;
+  FEmail := Value;
+end;
+
+function TEntidadeContato.Email: String;
+begin
+  Result := FEMail;
+end;
+
+function TEntidadeContato.DD(Value: String): iEntidadeContato;
+begin
+  Result := Self;
+  FDD    := Value;
+end;
+
+function TEntidadeContato.DD: String;
+begin
+  Result := FDD;
+end;
+
+function TEntidadeContato.Telefone(Value: String): iEntidadeContato;
+begin
+  Result := Self;
+  FTelefone := Value;
+end;
+
+function TEntidadeContato.Telefone: String;
+begin
+  Result := FTelefone;
+end;
+
+function TEntidadeContato.Tipo(Value: String): iEntidadeContato;
+begin
+  Result := Self;
+  FTipo  := Value;
+end;
+
+function TEntidadeContato.Tipo: String;
+begin
+  Result := FTipo;
+end;
+
+end.

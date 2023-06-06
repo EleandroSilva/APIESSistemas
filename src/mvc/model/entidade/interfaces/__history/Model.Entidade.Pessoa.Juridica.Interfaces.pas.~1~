@@ -1,0 +1,7 @@
+unit Model.Entidade.Pessoa.Juridica.Interfaces;
+
+interface
+
+implementation
+
+end.

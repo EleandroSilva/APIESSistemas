@@ -1,0 +1,244 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Entidade.Contato;
+
+interface
+
+uses
+  Data.DB,
+  System.SysUtils,
+
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Interfaces,
+  Model.Entidade.Contato.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Entidade.Contato,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query;
+
+type
+  TDAOContato = class(TInterfacedObject, iDAOEntidade<iEntidadeContato>)
+    private
+      FContato : iEntidadeContato;
+      FConexao : iConexao;
+      FDataSet : TDataSet;
+      FQuery   : iQuery;
+      FMSG     : TMensagens;
+     const
+      FSQL=('select * from contato');
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEntidade<iEntidadeContato>;
+
+      function DataSet(DataSource : TDataSource) : iDAOEntidade<iEntidadeContato>; overload;
+      function DataSet                           : TDataSet;                       overload;
+      function GetAll                            : iDAOEntidade<iEntidadeContato>;
+      function GetbyId(Id : Variant)             : iDAOEntidade<iEntidadeContato>;
+      function GetbyParams                       : iDAOEntidade<iEntidadeContato>;
+      function Post                              : iDAOEntidade<iEntidadeContato>;
+      function Put                               : iDAOEntidade<iEntidadeContato>;
+      function Delete                            : iDAOEntidade<iEntidadeContato>;
+
+      function This : iEntidadeContato;
+  end;
+
+implementation
+
+{ TDAOContato }
+
+constructor TDAOContato.Create;
+begin
+  FContato := TEntidadeContato.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+end;
+
+class function TDAOContato.New: iDAOEntidade<iEntidadeContato>;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOContato.This: iEntidadeContato;
+begin
+  Result := FContato;
+end;
+
+destructor TDAOContato.Destroy;
+begin
+  inherited;
+end;
+
+function TDAOContato.DataSet(DataSource: TDataSource): iDAOEntidade<iEntidadeContato>;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOContato.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOContato.GetAll: iDAOEntidade<iEntidadeContato>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOContato.GetbyId(Id: Variant): iDAOEntidade<iEntidadeContato>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOContato.GetbyParams: iDAOEntidade<iEntidadeContato>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+      //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+   //Criar MSG
+  end;
+end;
+
+function TDAOContato.Post: iDAOEntidade<iEntidadeContato>;
+const
+  LSQL=('insert into contato('+
+                             'idpessoa, '+
+                             'email, '+
+                             'dd, '+
+                             'telefone, '+
+                             'tipo '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa, '+
+                             ':email, '+
+                             ':dd, '+
+                             ':telefone, '+
+                             ':tipo '+
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa' , FContato.IdPessoa)
+          .Params('email'    , FContato.Email)
+          .Params('dd'       , FContato.DD)
+          .Params('telefone' , FContato.Telefone)
+          .Params('tipo'     , FContato.Tipo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FContato.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+end;
+
+function TDAOContato.Put: iDAOEntidade<iEntidadeContato>;
+const
+  LSQL=('update contato set '+
+        'email=:email, '+
+        'dd=:dd, '+
+        'telefone=:telefone, '+
+        'tipo=:tipo '+
+        'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'       , FContato.Id)
+          .Params('email'    , FContato.Email)
+          .Params('dd'       , FContato.DD)
+          .Params('telefone' , FContato.Telefone)
+          .Params('tipo'     , FContato.Tipo)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+  end;
+end;
+
+function TDAOContato.Delete: iDAOEntidade<iEntidadeContato>;
+const
+  LSQL=('delete from contato where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+ try
+  try
+    FQuery.SQL(LSQL)
+            .Params('id', FContato.Id)
+          .ExecSQL;
+  except
+    FConexao.Rollback;
+    raise Exception.Create(FMSG.MSGerroDelete);
+  end;
+ finally
+   FConexao.Commit;
+ end;
+end;
+
+end.

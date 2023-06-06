@@ -1,0 +1,16 @@
+unit Model.Entidade.Pessoa.Fisica.Interfaces;
+
+interface
+
+type
+  iPessoaFisica = interface
+    ['{130278CD-70E3-4971-87BD-3A7890949EEE}']
+    function CPF(Value : String) : iPessoaFisica; overload;
+    function CPF                 : String;        overload;
+    function RG(Value : String)  : iPessoaFisica; overload;
+    function RG                  : String;        overload;
+  end;
+
+implementation
+
+end.

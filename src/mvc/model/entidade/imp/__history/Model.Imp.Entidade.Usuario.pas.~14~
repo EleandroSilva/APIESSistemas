@@ -1,0 +1,151 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Usuario;
+
+interface
+
+uses
+  System.SysUtils,
+  System.Classes,
+
+  Model.Entidade.Usuario.Interfaces,
+  Model.Entidade.Pessoa.Interfaces,
+  Model.Entidade.Contato.Interfaces;
+
+type
+  TEntidadeUsuario<T : iInterface> = class(TInterfacedObject, iEntidadeUsuario<T>)
+    private
+      [weak]
+      FParent    : T;
+      FPessoa    : iEntidadePessoa<iEntidadeUsuario<T>>;//injeção de dependência iEntidadePessoa
+      FContato   : iEntidadeContato<iEntidadeUsuario<T>>;//injeção de dependência iEntidadeContato
+      FId        : Integer;
+      FIdEmpresa : Integer;
+      FNome      : String;
+      FSobreNome : String;
+      FEMail     : String;
+      FSenha     : String;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T): iEntidadeUsuario<T>;
+
+      function Id(Value : Integer)        : iEntidadeUsuario<T>; overload;
+      function Id                         : Integer;          overload;
+      function IdEmpresa(Value : Integer) : iEntidadeUsuario<T>; overload;
+      function IdEmpresa                  : Integer;          overload;
+      function Nome(Value : String)       : iEntidadeUsuario<T>; overload;
+      function Nome                       : String;           overload;
+      function SobreNome(Value : String)  : iEntidadeUsuario<T>; overload;
+      function SobreNome                  : String;           overload;
+      function EMail(Value : String)      : iEntidadeUsuario<T>; overload;
+      function EMail                      : String;           overload;
+      function Senha(Value : String)      : iEntidadeUsuario<T>; overload;
+      function Senha                      : String;           overload;
+
+      //Injeção de dependência
+      function Pessoa         : iEntidadePessoa<iEntidadeUsuario<T>>;
+      function Contato        : iEntidadeContato<iEntidadeUsuario<T>>;
+
+      function &End : T;
+  end;
+
+
+implementation
+
+{ TEntidadeUsuario }
+
+constructor TEntidadeUsuario<T>.Create(Parent : T);
+begin
+  FParent := Parent;
+end;
+
+class function TEntidadeUsuario<T>.New(Parent : T): iEntidadeUsuario<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeUsuario<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+destructor TEntidadeUsuario<T>.Destroy;
+begin
+  inherited;
+end;
+
+function TEntidadeUsuario<T>.Id(Value: Integer): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FId := Value;
+end;
+
+function TEntidadeUsuario<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeUsuario<T>.IdEmpresa(Value: Integer): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FIdEmpresa := Value;
+end;
+
+function TEntidadeUsuario<T>.IdEmpresa: Integer;
+begin
+  Result := FIdEmpresa;
+end;
+
+function TEntidadeUsuario<T>.Nome(Value: String): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FNome := Value;
+end;
+
+function TEntidadeUsuario<T>.Nome: String;
+begin
+  Result := FNome;
+end;
+
+function TEntidadeUsuario<T>.SobreNome(Value: String): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FSobreNome := Value;
+end;
+
+function TEntidadeUsuario<T>.SobreNome: String;
+begin
+  Result := FSobreNome;
+end;
+
+function TEntidadeUsuario<T>.EMail(Value: String): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FEMail := Value;
+end;
+
+function TEntidadeUsuario<T>.EMail: String;
+begin
+  Result := FEmail;
+end;
+
+function TEntidadeUsuario<T>.Senha(Value: String): iEntidadeUsuario<T>;
+begin
+  Result := Self;
+  FSenha := Value;
+end;
+
+function TEntidadeUsuario<T>.Senha: String;
+begin
+  Result := FSenha;
+end;
+
+end.

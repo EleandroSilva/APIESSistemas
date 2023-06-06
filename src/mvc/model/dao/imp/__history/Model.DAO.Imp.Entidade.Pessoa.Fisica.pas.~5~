@@ -1,0 +1,203 @@
+{*******************************************************}
+{                    APP PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Imp.Entidade.Pessoa.Fisica;
+
+interface
+
+uses
+  System.SysUtils,
+  Data.DB,
+
+  Uteis,
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Entidade.Pessoa.Fisica.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Entidade.Pessoa.Fisica,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query;
+
+type
+  TDAOPessoaFisica = class (TInterfacedObject, iDAOPessoaFisica)
+    private
+      FPessoaFisica : iEntidadePessoaFisica<iDAOPessoaFisica>;
+      FConexao      : iConexao;
+      FDataSet      : TDataSet;
+      FQuery        : iQuery;
+      FUteis        : TUteis;
+      FMSG          : TMensagens;
+
+      const
+        FSQL ='select * from pessoafisica';
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOPessoaFisica;
+
+      function DataSet(DataSource : TDataSource) : iDAOPessoaFisica; overload;
+      function DataSet                           : TDataSet;         overload;
+      function GetAll                            : iDAOPessoaFisica;
+      function GetbyId(Id : Variant)             : iDAOPessoaFisica;
+      function GetbyParams                       : iDAOPessoaFisica;
+      function Post                              : iDAOPessoaFisica;
+      function Put                               : iDAOPessoaFisica;
+      function Delete                            : iDAOPessoaFisica;
+
+      function This : iEntidadePessoaFisica<iDAOPessoaFisica>;
+  end;
+
+implementation
+
+{ TDAOPessoaFisica }
+
+constructor TDAOPessoaFisica.Create;
+begin
+  FPessoaFisica := TEntidadePessoaFisica<iDAOPessoaFisica>.New(Self);
+  FConexao      := TModelConexaoFiredacMySQL.New;
+  FQuery        := TQuery.New;
+  FUteis        := TUteis.Create;
+end;
+
+class function TDAOPessoaFisica.New: iDAOPessoaFisica;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOPessoaFisica.This: iEntidadePessoaFisica<iDAOPessoaFisica>;
+begin
+  Result := FPessoaFisica;
+end;
+
+destructor TDAOPessoaFisica.Destroy;
+begin
+  FreeAndNil(FUteis);
+  inherited;
+end;
+
+function TDAOPessoaFisica.DataSet(DataSource: TDataSource): iDAOPessoaFisica;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOPessoaFisica.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOPessoaFisica.GetAll: iDAOPessoaFisica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     //raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoaFisica.GetbyId(Id: Variant): iDAOPessoaFisica;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOPessoaFisica.GetbyParams: iDAOPessoaFisica;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(cpf) like lower(:cpf)) ')
+                   .Params('cnpj', FPessoaFisica.CPF)
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+
+  end;
+end;
+
+function TDAOPessoaFisica.Post: iDAOPessoaFisica;
+const
+  LSQL=('insert into pessoafisica('+
+                             'idpessoa, '+
+                             'cpf, '+
+                             'rg '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idpessoa, '+
+                             ':cpf, '+
+                             ':rg '+
+                            ')'
+       );
+begin
+  Result := Self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idpessoa' , FPessoaFisica.IdPessoa)
+          .Params('cnpj'     , FPessoaFisica.CPF)
+          .Params('inscest'  , FPessoaFisica.RG)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID () as id')
+                    .Open
+                    .DataSet;
+    FPessoaFisica.Id(FDataSet.FieldByName('id').AsInteger);
+   end;
+
+end;
+
+function TDAOPessoaFisica.Put: iDAOPessoaFisica;
+begin
+
+end;
+
+function TDAOPessoaFisica.Delete: iDAOPessoaFisica;
+begin
+
+end;
+
+end.

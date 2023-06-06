@@ -1,0 +1,248 @@
+{*******************************************************}
+{                                                       }
+{                      ES Sistemas                      }
+{                                                       }
+{ Empresas de Sistemas 2003-2023 www.bemoreweb.com.br   }
+{                     (17)98169-5336                    }
+{                                                       }
+{*******************************************************}
+unit Model.DAO.Imp.Entidade.Usuario;
+
+interface
+
+uses
+  System.SysUtils,
+  System.JSON,
+
+  DataSet.Serialize,
+  Data.DB,
+
+  Uteis.Tratar.Mensagens,
+
+  Model.DAO.Entidade.Interfaces,
+  Model.Conexao.Firedac.Interfaces,
+  Model.Query,
+  Model.Imp.Conexao.Firedac.MySQL,
+  Model.Imp.Query,
+  Model.Entidade.Usuario.Interfaces,
+  Model.Imp.Entidade.Usuario;
+
+type
+  TDAOUsuario = class(TInterfacedObject, iDAOEntidade<iEntidadeUsuario>)
+    private
+      FUsuario     : iEntidadeUsuario;
+      FConexao     : iConexao;
+      FDataSet     : TDataSet;
+      FQuery       : iQuery;
+      FMSG         : TMensagens;
+   const
+      FSQL=('select * from usuario');
+    public
+      constructor Create;
+      destructor Destroy; override;
+      class function New : iDAOEntidade<iEntidadeUsuario>;
+
+      function DataSet(DataSource : TDataSource) : iDAOEntidade<iEntidadeUsuario>; overload;
+      function DataSet                           : TDataSet;                       overload;
+      function GetAll                            : iDAOEntidade<iEntidadeUsuario>;
+      function GetbyId(Id : Variant)             : iDAOEntidade<iEntidadeUsuario>;
+      function GetbyParams                       : iDAOEntidade<iEntidadeUsuario>;
+      function Post                              : iDAOEntidade<iEntidadeUsuario>;
+      function Put                               : iDAOEntidade<iEntidadeUsuario>;
+      function Delete                            : iDAOEntidade<iEntidadeUsuario>;
+
+      function This : iEntidadeUsuario;
+  end;
+
+implementation
+
+{ TDAOUsuario }
+
+constructor TDAOUsuario.Create;
+begin
+  FUsuario := TEntidadeUsuario.New(Self);
+  FConexao := TModelConexaoFiredacMySQL.New;
+  FQuery   := TQuery.New;
+end;
+
+class function TDAOUsuario.New: iDAOEntidade<iEntidadeUsuario>;
+begin
+  Result := Self.Create;
+end;
+
+function TDAOUsuario.This: iEntidadeUsuario;
+begin
+  Result := FUsuario;
+end;
+
+destructor TDAOUsuario.Destroy;
+begin
+  inherited;
+end;
+
+function TDAOUsuario.DataSet(DataSource: TDataSource): iDAOEntidade<iEntidadeUsuario>;
+begin
+  Result := Self;
+  if not Assigned(FDataset) then
+    DataSource.DataSet := FQuery.DataSet
+  else
+    DataSource.DataSet := FDataSet;
+end;
+
+function TDAOUsuario.DataSet: TDataSet;
+begin
+  Result := FDataSet;
+end;
+
+function TDAOUsuario.GetAll: iDAOEntidade<iEntidadeUsuario>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL)
+                    .Open
+                  .DataSet;
+    except
+     raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOUsuario.GetbyId(Id: Variant): iDAOEntidade<iEntidadeUsuario>;
+begin
+  Result := Self;
+  try
+    try
+      FDataSet := FQuery
+                    .SQL(FSQL+' where Id=:Id')
+                    .Params('Id', Id)
+                    .Open
+                  .DataSet;
+    except
+      raise Exception.Create(FMSG.MSGerroGet);
+    end;
+  finally
+    //Criar MSG
+  end;
+end;
+
+function TDAOUsuario.GetbyParams : iDAOEntidade<iEntidadeUsuario>;
+begin
+  Result := Self;
+  try
+   try
+     FDataSet := FQuery
+                   .SQL(FSQL+' where ((lower(email) like lower(:email) and (senha=:senha))) ')
+                   .Params('email', FUsuario.EMail)
+                   .Params('senha', FUsuario.Senha)
+                   .Open
+                 .DataSet;
+   except
+     raise exception.Create(FMSG.MSGerroGet);
+   end;
+  finally
+     //Criar MSG
+  end;
+end;
+
+function TDAOUsuario.Post: iDAOEntidade<iEntidadeUsuario>;
+const
+  LSQL=('insert into usuario('+
+                             'idempresa, '+
+                             'nome, '+
+                             'sobrenome, '+
+                             'email, '+
+                             'senha '+
+                           ')'+
+                             ' values '+
+                           '('+
+                             ':idempresa, '+
+                             ':nome, '+
+                             ':sobrenome, '+
+                             ':email, '+
+                             ':senha '+
+                            ')'
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('idempresa' , FUsuario.IdEmpresa)
+          .Params('nome'      , FUsuario.Nome)
+          .Params('sobrenome' , FUsuario.SobreNome)
+          .Params('email'     , FUsuario.EMail)
+          .Params('senha'     , FUsuario.Senha)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPost);
+    end;
+  finally
+    FConexao.Commit;
+    FDataSet := FQuery
+                    .SQL('select LAST_INSERT_ID ()').Open.DataSet;
+  end;
+end;
+
+function TDAOUsuario.Put: iDAOEntidade<iEntidadeUsuario>;
+const
+  LSQL=('update usuario set '+
+        'nome=:nome, '+
+        'sobrenome=:sobrenome, '+
+        'email=:email, '+
+        'senha=:senha '+
+        'where id=:id '
+       );
+begin
+  Result := Self;
+
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery
+        .SQL(LSQL)
+          .Params('id'        , FUsuario.Id)
+          .Params('nome'      , FUsuario.Nome)
+          .Params('sobrenome' , FUsuario.SobreNome)
+          .Params('email'     , FUsuario.EMail)
+          .Params('senha'     , FUsuario.Senha)
+        .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroPut);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+function TDAOUsuario.Delete: iDAOEntidade<iEntidadeUsuario>;
+const
+  LSQL=('delete from usuario where id=:id ');
+begin
+  Result := self;
+  FConexao.StartTransaction;
+  try
+    try
+      FQuery.SQL(LSQL)
+               .Params('id', FUsuario.Id)
+            .ExecSQL;
+    except
+      FConexao.Rollback;
+      raise Exception.Create(FMSG.MSGerroDelete);
+    end;
+  finally
+    FConexao.Commit;
+    //Criar MSG
+  end;
+end;
+
+end.

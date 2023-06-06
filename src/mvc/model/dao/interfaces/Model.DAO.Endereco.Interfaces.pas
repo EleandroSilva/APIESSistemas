@@ -1,0 +1,36 @@
+{*******************************************************}
+{                    APP PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.DAO.Endereco.Interfaces;
+
+interface
+
+uses
+  Data.DB,
+
+  Model.Entidade.Endereco.Interfaces;
+
+type
+  iDAOEndereco = interface
+    ['{98F33D04-9A99-4C56-8CE4-5C6988F5E35D}']
+    function DataSet(DataSource : TDataSource) : iDAOEndereco; overload;
+    function DataSet                           : TDataSet;     overload;
+    function GetAll                            : iDAOEndereco;
+    function GetbyId(Id : Variant)             : iDAOEndereco;
+    function GetbyParams                       : iDAOEndereco;
+    function Post                              : iDAOEndereco;
+    function Put                               : iDAOEndereco;
+    function Delete                            : iDAOEndereco;
+
+    function This : iEntidadeEndereco<iDAOEndereco>;
+  end;
+
+implementation
+
+end.

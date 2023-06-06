@@ -1,0 +1,196 @@
+{*******************************************************}
+{                    API PDV - JSON                     }
+{                      ES Sistemas                      }
+{            Início do projeto 27/05/2023               }
+{                 www.bemoreweb.com.br                  }
+{                     (17)98169-5336                    }
+{                        2003/2023                      }
+{         Analista desenvolvedor (Eleandro Silva)       }
+{*******************************************************}
+unit Model.Imp.Entidade.Endereco;
+
+interface
+
+uses
+  Model.Entidade.Endereco.Interfaces,
+  Model.DAO.Entidade.Interfaces;
+
+type
+  TEntidadeEndereco<T : iInterface> = class(TInterfacedObject, iEntidadeEndereco<T>)
+    private
+      [Weak]
+      FParent      : T;
+      FId          : Integer;
+      FIdPessoa    : Integer;
+      FCep         : String;
+      FTipo        : String;
+      FLogradouro  : String;
+      FNumero      : String;
+      FBairro      : String;
+      FMunicipio   : String;
+      FEstado      : String;
+      FComplemento : String;
+    public
+      constructor Create(Parent : T);
+      destructor Destroy; override;
+      class function New(Parent : T) : iEntidadeEndereco<T>;
+
+      function Id(Value : Integer)        : iEntidadeEndereco<T>; overload;
+      function Id                         : Integer;              overload;
+      function IdPessoa(Value : Integer)  : iEntidadeEndereco<T>; overload;
+      function IdPessoa                   : Integer;              overload;
+      function Cep(Value : String)        : iEntidadeEndereco<T>; overload;
+      function Cep                        : String;               overload;
+      function Tipo(Value : String)       : iEntidadeEndereco<T>; overload;
+      function Tipo                       : String;               overload;
+      function Logradouro(Value : String) : iEntidadeEndereco<T>; overload;
+      function Logradouro                 : String;               overload;
+      function Numero(Value : String)     : iEntidadeEndereco<T>; overload;
+      function Numero                     : String;               overload;
+      function Bairro(Value : String)     : iEntidadeEndereco<T>; overload;
+      function Bairro                     : String;               overload;
+      function Municipio(Value : String)  : iEntidadeEndereco<T>; overload;
+      function Municipio                  : String;               overload;
+      function Estado(Value : String)     : iEntidadeEndereco<T>; overload;
+      function Estado                     : String;               overload;
+      function Complemento(Value : String): iEntidadeEndereco<T>; overload;
+      function Complemento                : String;               overload;
+
+      function &End : T;
+  end;
+
+implementation
+
+{ TEntidadeEndereco<T>}
+
+constructor TEntidadeEndereco<T>.Create(Parent: T);
+begin
+  FParent := Parent;
+end;
+
+class function TEntidadeEndereco<T>.New(Parent: T): iEntidadeEndereco<T>;
+begin
+  Result := Self.Create(Parent);
+end;
+
+function TEntidadeEndereco<T>.&End: T;
+begin
+  Result := FParent;
+end;
+
+destructor TEntidadeEndereco<T>.Destroy;
+begin
+  inherited;
+end;
+
+function TEntidadeEndereco<T>.Id(Value: Integer): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FId    := Value;
+end;
+
+function TEntidadeEndereco<T>.Id: Integer;
+begin
+  Result := FId;
+end;
+
+function TEntidadeEndereco<T>.IdPessoa(Value: Integer): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FIdPessoa := Value;
+end;
+
+function TEntidadeEndereco<T>.IdPessoa: Integer;
+begin
+  Result := FIdPessoa;
+end;
+
+function TEntidadeEndereco<T>.Cep(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FCep := Value;
+end;
+
+function TEntidadeEndereco<T>.Cep: String;
+begin
+  Result := FCep;
+end;
+
+function TEntidadeEndereco<T>.Tipo(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FTipo  := Value;
+end;
+
+function TEntidadeEndereco<T>.Tipo: String;
+begin
+  Result := FTipo;
+end;
+
+function TEntidadeEndereco<T>.Logradouro(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FLogradouro := Value;
+end;
+
+function TEntidadeEndereco<T>.Logradouro: String;
+begin
+  Result := FLogradouro;
+end;
+
+function TEntidadeEndereco<T>.Numero(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FNumero := Value;
+end;
+
+function TEntidadeEndereco<T>.Numero: String;
+begin
+  Result := FNumero;
+end;
+
+function TEntidadeEndereco<T>.Bairro(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FBairro := Value;
+end;
+
+function TEntidadeEndereco<T>.Bairro: String;
+begin
+  Result := FBairro;
+end;
+
+function TEntidadeEndereco<T>.Municipio(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FMunicipio := Value;
+end;
+
+function TEntidadeEndereco<T>.Municipio: String;
+begin
+  Result := FMunicipio;
+end;
+
+function TEntidadeEndereco<T>.Estado(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FEstado := Value;
+end;
+
+function TEntidadeEndereco<T>.Estado: String;
+begin
+  Result := FEstado;
+end;
+
+function TEntidadeEndereco<T>.Complemento(Value: String): iEntidadeEndereco<T>;
+begin
+  Result := Self;
+  FComplemento := Value;
+end;
+
+function TEntidadeEndereco<T>.Complemento: String;
+begin
+  Result := FComplemento;
+end;
+
+end.

@@ -1,0 +1,7 @@
+unit Model.DAO.Entidade.Pessoa.Fisica.Interfaces;
+
+interface
+
+implementation
+
+end.
