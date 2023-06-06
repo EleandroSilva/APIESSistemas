@@ -1,7 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      ES Sistemas                      }
-{            Início do projeto 27/05/2023               }
+{            InÃ­cio do projeto 27/05/2023               }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2023                      }
@@ -29,11 +29,11 @@ type
     private
       [weak]
       FParent         : T;
-      FPessoa         : iEntidadePessoa<iEntidadeEmpresa<T>>;//injeção de dependência iEntidadePessoa
-      FContato        : iEntidadeContato<iEntidadeEmpresa<T>>;//injeção de dependência iEntidadeContato
-      FPessoaFisica   : iEntidadePessoaFisica<iEntidadeEmpresa<T>>;//injeção de dependência iEntidadePessoaFisica
-      FPessoaJuridica : iEntidadePessoaJuridica<iEntidadeEmpresa<T>>;//injeção de dependência iEntidadePessoaJuridica
-      FEndereco       : iEntidadeEndereco<iEntidadeEmpresa<T>>;//injeção de dependência iEntidadeEndereco
+      FPessoa         : iEntidadePessoa<iEntidadeEmpresa<T>>;//injeÃ§Ã£o de dependÃªncia iEntidadePessoa
+      FContato        : iEntidadeContato<iEntidadeEmpresa<T>>;//injeÃ§Ã£o de dependÃªncia iEntidadeContato
+      FPessoaFisica   : iEntidadePessoaFisica<iEntidadeEmpresa<T>>;//injeÃ§Ã£o de dependÃªncia iEntidadePessoaFisica
+      FPessoaJuridica : iEntidadePessoaJuridica<iEntidadeEmpresa<T>>;//injeÃ§Ã£o de dependÃªncia iEntidadePessoaJuridica
+      FEndereco       : iEntidadeEndereco<iEntidadeEmpresa<T>>;//injeÃ§Ã£o de dependÃªncia iEntidadeEndereco
 
       FId             : Integer;
       FIdPessoa       : Integer;
@@ -43,9 +43,9 @@ type
       class function New(Parent : T): iEntidadeEmpresa<T>;
 
       function Id(Value : Integer)            : iEntidadeEmpresa<T>; overload;
-      function Id                             : Integer;          overload;
+      function Id                             : Integer;             overload;
       function IdPessoa(Value : Integer)      : iEntidadeEmpresa<T>; overload;
-      function IdPessoa                       : Integer;          overload;
+      function IdPessoa                       : Integer;             overload;
 
       function Pessoa         : iEntidadePessoa<iEntidadeEmpresa<T>>;
       function Contato        : iEntidadeContato<iEntidadeEmpresa<T>>;
