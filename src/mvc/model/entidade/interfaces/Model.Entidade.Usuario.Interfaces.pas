@@ -1,7 +1,7 @@
 {*******************************************************}
 {                    API PDV - JSON                     }
 {                      ES Sistemas                      }
-{            Início do projeto 27/05/2023               }
+{            InÃ­cio do projeto 27/05/2023               }
 {                 www.bemoreweb.com.br                  }
 {                     (17)98169-5336                    }
 {                        2003/2023                      }
@@ -24,8 +24,7 @@ type
     function Senha(Value : String)      : iEntidadeUsuario<T>; overload;
     function Senha                      : String;              overload;
 
-
-    //Injeção de dependência
+    //InjeÃ§Ã£o de dependÃªncia
     function Pessoa         : iEntidadePessoa<iEntidadeUsuario<T>>;
     function Contato        : iEntidadeContato<iEntidadeUsuario<T>>;
 
