@@ -10,7 +10,7 @@ type
   iDAOPessoa = interface
     ['{050174A2-AB18-46D2-B2BB-161C15179CCD}']
     function DataSet(DataSource : TDataSource) : iDAOPessoa; overload;
-    function DataSet                           : TDataSet;    overload;
+    function DataSet                           : TDataSet;   overload;
     function GetAll                            : iDAOPessoa;
     function GetbyId(Id : Variant)             : iDAOPessoa;
     function GetbyParams                       : iDAOPessoa;
